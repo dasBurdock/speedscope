@@ -1,23 +1,23 @@
-import {h, Component} from 'preact'
-import {StyleSheet, css} from 'aphrodite'
-import {FileSystemDirectoryEntry} from '../import/file-system-entry'
+import { h, Component } from 'preact'
+import { StyleSheet, css } from 'aphrodite'
+import { FileSystemDirectoryEntry } from '../import/file-system-entry'
 
-import {Profile, ProfileGroup} from '../lib/profile'
-import {FontFamily, FontSize, Colors, Sizes, Duration} from './style'
-import {importEmscriptenSymbolMap} from '../lib/emscripten'
-import {SandwichViewContainer} from './sandwich-view'
-import {saveToFile} from '../lib/file-format'
-import {ApplicationState, ViewMode, canUseXHR} from '../store'
-import {StatelessComponent} from '../lib/typed-redux'
-import {LeftHeavyFlamechartView, ChronoFlamechartView} from './flamechart-view-container'
-import {SandwichViewState} from '../store/sandwich-view-state'
-import {FlamechartViewState} from '../store/flamechart-view-state'
-import {CanvasContext} from '../gl/canvas-context'
-import {Graphics} from '../gl/graphics'
+import { Profile, ProfileGroup } from '../lib/profile'
+import { FontFamily, FontSize, Colors, Sizes, Duration } from './style'
+import { importEmscriptenSymbolMap } from '../lib/emscripten'
+import { SandwichViewContainer } from './sandwich-view'
+import { saveToFile } from '../lib/file-format'
+import { ApplicationState, ViewMode, canUseXHR } from '../store'
+import { StatelessComponent } from '../lib/typed-redux'
+import { LeftHeavyFlamechartView, ChronoFlamechartView } from './flamechart-view-container'
+import { SandwichViewState } from '../store/sandwich-view-state'
+import { FlamechartViewState } from '../store/flamechart-view-state'
+import { CanvasContext } from '../gl/canvas-context'
+import { Graphics } from '../gl/graphics'
 
 const importModule = import('../import')
 // Force eager loading of the module
-importModule.then(() => {})
+importModule.then(() => { })
 
 async function importProfilesFromText(
   fileName: string,
@@ -105,9 +105,9 @@ export class Toolbar extends StatelessComponent<ToolbarProps> {
   }
 
   renderCenterContent() {
-    const {activeProfileState, profileGroup} = this.props
+    const { activeProfileState, profileGroup } = this.props
     if (activeProfileState && profileGroup) {
-      const {index} = activeProfileState
+      const { index } = activeProfileState
       if (profileGroup.profiles.length === 1) {
         return activeProfileState.profile.getName()
       } else {
@@ -221,7 +221,7 @@ export class GLCanvas extends Component<GLCanvasProps, void> {
     if (!this.container) return
     if (!this.props.canvasContext) return
 
-    let {width, height} = this.container.getBoundingClientRect()
+    let { width, height } = this.container.getBoundingClientRect()
 
     const widthInAppUnits = width
     const heightInAppUnits = height
@@ -279,7 +279,12 @@ export interface ActiveProfileState {
   sandwichViewState: SandwichViewState
 }
 
-export type ApplicationProps = ApplicationState & {
+export type OverrideProps = {
+  overrideProfileName: string | null
+  overrideProfileBody: string | null
+}
+
+export type ApplicationProps = ApplicationState & OverrideProps & {
   setGLCanvas: (canvas: HTMLCanvasElement | null) => void
   setLoading: (loading: boolean) => void
   setError: (error: boolean) => void
@@ -293,6 +298,14 @@ export type ApplicationProps = ApplicationState & {
 }
 
 export class Application extends StatelessComponent<ApplicationProps> {
+
+  componentWillReceiveProps(nextProps: ApplicationProps) {
+    const { overrideProfileName: profileName, overrideProfileBody: profileBody } = nextProps
+    if (profileName && profileBody && profileBody != this.props.overrideProfileBody) {
+      this.loadProfile(async () => await importProfilesFromText(profileName, profileBody))
+    }
+  }
+
   private async loadProfile(loader: () => Promise<ProfileGroup | null>) {
     this.props.setLoading(true)
     await new Promise(resolve => setTimeout(resolve, 0))
@@ -375,7 +388,7 @@ export class Application extends StatelessComponent<ApplicationProps> {
 
         const map = importEmscriptenSymbolMap(fileContents)
         if (map) {
-          const {profile, index} = this.props.activeProfileState
+          const { profile, index } = this.props.activeProfileState
           console.log('Importing as emscripten symbol map')
           profile.remapNames(name => map.get(name) || name)
           return {
@@ -440,15 +453,15 @@ export class Application extends StatelessComponent<ApplicationProps> {
     } else if (ev.key === '3') {
       this.props.setViewMode(ViewMode.SANDWICH_VIEW)
     } else if (ev.key === 'r') {
-      const {flattenRecursion} = this.props
+      const { flattenRecursion } = this.props
       this.props.setFlattenRecursion(!flattenRecursion)
     } else if (ev.key === 'n') {
-      const {activeProfileState} = this.props
+      const { activeProfileState } = this.props
       if (activeProfileState) {
         this.props.setProfileIndexToView(activeProfileState.index + 1)
       }
     } else if (ev.key === 'p') {
-      const {activeProfileState} = this.props
+      const { activeProfileState } = this.props
       if (activeProfileState) {
         this.props.setProfileIndexToView(activeProfileState.index - 1)
       }
@@ -457,7 +470,7 @@ export class Application extends StatelessComponent<ApplicationProps> {
 
   private saveFile = () => {
     if (this.props.profileGroup) {
-      const {name, indexToView, profiles} = this.props.profileGroup
+      const { name, indexToView, profiles } = this.props.profileGroup
       const profileGroup: ProfileGroup = {
         name,
         indexToView,
@@ -501,6 +514,11 @@ export class Application extends StatelessComponent<ApplicationProps> {
     window.addEventListener('keypress', this.onWindowKeyPress)
     document.addEventListener('paste', this.onDocumentPaste)
     this.maybeLoadHashParamProfile()
+
+    const { overrideProfileName: profileName, overrideProfileBody: profileBody } = this.props
+    if (profileName && profileBody && profileBody) {
+      this.loadProfile(async () => await importProfilesFromText(profileName, profileBody))
+    }
   }
 
   componentWillUnmount() {
@@ -529,7 +547,7 @@ export class Application extends StatelessComponent<ApplicationProps> {
       // There isn't good cross-browser support for XHR of local files, even from
       // other local files. To work around this restriction, we load the local profile
       // as a JavaScript file which will invoke a global function.
-      ;(window as any)['speedscope'] = {
+      ; (window as any)['speedscope'] = {
         loadFileFromBase64: (filename: string, base64source: string) => {
           this.loadProfile(() => importProfilesFromBase64(filename, base64source))
         },
@@ -572,11 +590,11 @@ export class Application extends StatelessComponent<ApplicationProps> {
               to load an example profile.
             </p>
           ) : (
-            <p className={css(style.landingP)}>
-              Drag and drop a profile file onto this window to get started, or click the big blue
-              button below to browse for a profile to explore.
+              <p className={css(style.landingP)}>
+                Drag and drop a profile file onto this window to get started, or click the big blue
+                button below to browse for a profile to explore.
             </p>
-          )}
+            )}
           <div className={css(style.browseButtonContainer)}>
             <input
               type="file"
@@ -632,7 +650,7 @@ export class Application extends StatelessComponent<ApplicationProps> {
   }
 
   renderContent() {
-    const {viewMode, activeProfileState, error, loading, glCanvas} = this.props
+    const { viewMode, activeProfileState, error, loading, glCanvas } = this.props
 
     if (error) {
       return this.renderError()

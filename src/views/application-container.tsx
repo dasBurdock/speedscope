@@ -1,14 +1,14 @@
-import {createContainer, Dispatch, bindActionCreator, ActionCreator} from '../lib/typed-redux'
-import {Application, ActiveProfileState} from './application'
-import {ApplicationState} from '../store'
-import {getProfileToView, getCanvasContext} from '../store/getters'
-import {actions} from '../store/actions'
-import {Graphics} from '../gl/graphics'
+import { createContainer, Dispatch, bindActionCreator, ActionCreator } from '../lib/typed-redux'
+import { Application, ActiveProfileState, OverrideProps } from './application'
+import { ApplicationState } from '../store'
+import { getProfileToView, getCanvasContext } from '../store/getters'
+import { actions } from '../store/actions'
+import { Graphics } from '../gl/graphics'
 
 export const ApplicationContainer = createContainer(
   Application,
-  (state: ApplicationState, dispatch: Dispatch) => {
-    const {flattenRecursion, profileGroup} = state
+  (state: ApplicationState, dispatch: Dispatch, ownProps: OverrideProps) => {
+    const { flattenRecursion, profileGroup } = state
 
     let activeProfileState: ActiveProfileState | null = null
     if (profileGroup) {
@@ -17,7 +17,7 @@ export const ApplicationContainer = createContainer(
         const profileState = profileGroup.profiles[index]
         activeProfileState = {
           ...profileGroup.profiles[profileGroup.indexToView],
-          profile: getProfileToView({profile: profileState.profile, flattenRecursion}),
+          profile: getProfileToView({ profile: profileState.profile, flattenRecursion }),
           index: profileGroup.indexToView,
         }
       }
@@ -56,6 +56,7 @@ export const ApplicationContainer = createContainer(
           gl.clear(new Graphics.Color(1, 1, 1, 1))
         }
       },
+      ...ownProps,
       ...setters,
       ...state,
     }

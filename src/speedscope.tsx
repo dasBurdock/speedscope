@@ -16,12 +16,12 @@ const lastStore: any = (window as any)['store']
 const store = createApplicationStore(lastStore ? lastStore.getState() : {})
   ; (window as any)['store'] = store
 
-export default function speedscope(element: any) {
+export default function speedscope(element: any, name: string, profile: string) {
   console.log(`speedscope v${require('../package.json').version} is loading profile: ${name}}`)
 
   render(
     <Provider store={store}>
-      <ApplicationContainer />
+      <ApplicationContainer {...{ overrideProfileName: name, overrideProfileBody: profile }} />
     </Provider>,
     element
   )
