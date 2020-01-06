@@ -1,9 +1,7 @@
-import {h, render} from 'preact'
-import {createApplicationStore} from './store'
-import {Provider} from 'preact-redux'
-import {ApplicationContainer} from './views/application-container'
-
-console.log(`speedscope v${require('../package.json').version}`)
+import { h, render } from 'preact'
+import { createApplicationStore } from './store'
+import { Provider } from 'preact-redux'
+import { ApplicationContainer } from './views/application-container'
 
 declare const module: any
 if (module.hot) {
@@ -16,12 +14,15 @@ if (module.hot) {
 
 const lastStore: any = (window as any)['store']
 const store = createApplicationStore(lastStore ? lastStore.getState() : {})
-;(window as any)['store'] = store
+  ; (window as any)['store'] = store
 
-render(
-  <Provider store={store}>
-    <ApplicationContainer />
-  </Provider>,
-  document.body,
-  document.body.lastElementChild || undefined,
-)
+export default function speedscope(element: any) {
+  console.log(`speedscope v${require('../package.json').version} is loading profile: ${name}}`)
+
+  render(
+    <Provider store={store}>
+      <ApplicationContainer />
+    </Provider>,
+    element
+  )
+}
