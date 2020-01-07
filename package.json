@@ -25,24 +25,16 @@
     "@types/jest": "22.2.3",
     "@types/jszip": "3.1.4",
     "@types/node": "10.1.4",
-    "@types/pako": "1.0.0",
-    "aphrodite": "2.1.0",
     "coveralls": "3.0.1",
     "eslint": "4.19.1",
     "eslint-plugin-prettier": "2.6.0",
     "jest": "23.0.1",
     "jsverify": "0.8.3",
     "jszip": "3.1.5",
-    "pako": "1.0.6",
     "parcel-bundler": "1.9.2",
-    "preact": "8.2.7",
-    "preact-redux": "jlfwong/preact-redux#a56dcc4",
     "prettier": "1.12.0",
-    "protobufjs": "6.8.8",
     "quicktype": "15.0.45",
-    "redux": "^4.0.0",
     "ts-jest": "22.4.6",
-    "typescript": "2.8.1",
     "typescript-eslint-parser": "17.0.1",
     "uglify-es": "3.2.2"
   },
@@ -64,6 +56,14 @@
     ]
   },
   "dependencies": {
+    "@types/pako": "1.0.0",
+    "aphrodite": "2.1.0",
+    "typescript": "2.8.1",
+    "pako": "1.0.6",
+    "preact": "8.2.7",
+    "preact-redux": "jlfwong/preact-redux#a56dcc4",
+    "protobufjs": "6.8.8",
+    "redux": "^4.0.0",
     "opn": "5.3.0"
   }
 }
