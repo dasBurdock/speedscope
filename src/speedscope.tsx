@@ -23,6 +23,7 @@ export default function speedscope(element: any, name: string, profile: string) 
     <Provider store={store}>
       <ApplicationContainer {...{ overrideProfileName: name, overrideProfileBody: profile }} />
     </Provider>,
-    element
+    element,
+    element.lastElementChild // rerender in place 
   )
 }
